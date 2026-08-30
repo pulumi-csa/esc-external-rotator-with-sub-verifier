@@ -1,0 +1,6 @@
+name: esc-external-rotator-sub-example
+runtime:
+  name: nodejs
+  options:
+    packagemanager: npm
+description: ESC external rotator adapter demonstrating sub claim verification

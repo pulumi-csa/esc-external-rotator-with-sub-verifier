@@ -1,0 +1,16 @@
+{
+  "name": "esc-external-rotator-sub-example",
+  "description": "ESC external rotator adapter demonstrating sub claim verification",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@pulumi/aws": "^7.11.1",
+    "@pulumi/pulumi": "^3.207.0",
+    "@pulumi/pulumiservice": "^0.32.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0"
+  }
+}
