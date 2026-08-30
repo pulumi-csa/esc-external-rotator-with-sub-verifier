@@ -9,6 +9,7 @@ const config = new pulumi.Config();
 // allowedEnv is also required here because it doubles as the ESC environment name.
 const allowedOrg = config.require("allowedOrg");
 const allowedEnv = config.require("allowedEnv");
+const escProject = config.get("escProject") ?? "default";
 
 // IAM role for the Lambda
 const role = new aws.iam.Role("rotatorRole", {
@@ -59,7 +60,8 @@ const fn = new aws.lambda.Function("rotatorFn", {
       ADAPTER_URL: adapterUrl,
       // Sub claim verification — set at deploy time, checked at request time
       ALLOWED_ORG: allowedOrg,
-      ...(allowedEnv ? { ALLOWED_ENV: allowedEnv } : {}),
+      ALLOWED_ENV: allowedEnv,
+      ALLOWED_PROJECT: escProject,
     },
   },
 });
@@ -85,8 +87,6 @@ new aws.lambda.Permission("apiGatewayInvoke", {
 });
 
 // ESC environment wired up to the rotator adapter
-const escProject = config.get("escProject") ?? "default";
-
 const environment = new pulumiservice.Environment("rotatorEnv", {
   organization: pulumi.getOrganization(),
   project: escProject,

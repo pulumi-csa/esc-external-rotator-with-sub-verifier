@@ -11,7 +11,7 @@
 const crypto = require("crypto");
 
 const JWKS_URI = "https://api.pulumi.com/oidc/.well-known/jwks";
-const PULUMI_ISSUER = "https://api.pulumi.com";
+const PULUMI_ISSUER = "https://api.pulumi.com/oidc";
 
 // Simple in-memory JWKS cache to avoid fetching on every invocation
 let jwksCache = null;
@@ -95,9 +95,13 @@ function verifySubClaim(sub) {
 
   if (!allowedOrg) throw new Error("ALLOWED_ORG env var is not configured");
 
+  // Sub env segment format: "<project>/<env>"
+  const allowedProject = process.env.ALLOWED_PROJECT;
+
   if (allowedEnv) {
     // Exact match: only this specific environment may call us
-    const expected = `pulumi:environments:org:${allowedOrg}:env:${allowedEnv}`;
+    const envSegment = allowedProject ? `${allowedProject}/${allowedEnv}` : allowedEnv;
+    const expected = `pulumi:environments:org:${allowedOrg}:env:${envSegment}`;
     if (sub !== expected) {
       throw Object.assign(
         new Error(`Unauthorized sub: expected "${expected}", got "${sub}"`),

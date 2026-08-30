@@ -9,7 +9,7 @@ When Pulumi Cloud calls your adapter it includes a signed JWT. Verifying the sig
 The `sub` claim carries the full identity of the calling environment:
 
 ```
-pulumi:environments:org:<org>:env:<env>
+pulumi:environments:org:<org>:env:<project>/<env>
 ```
 
 Checking it lets you enforce that only a specific environment — or any environment within a trusted org — can rotate your credentials.
@@ -70,11 +70,14 @@ In `rotator-handler.js`, `verifySubClaim` is called after the JWT signature is c
 
 ```javascript
 // ALLOWED_ORG is required — reject anything not from this org
-// ALLOWED_ENV is optional — omit to allow any environment within the org
+// ALLOWED_ENV + ALLOWED_PROJECT together restrict to a specific environment
+// Omit ALLOWED_ENV to allow any environment within the org
 
 if (allowedEnv) {
   // Exact match: only this specific environment may trigger rotation
-  const expected = `pulumi:environments:org:${allowedOrg}:env:${allowedEnv}`;
+  // Sub env segment is "<project>/<env>" when an ESC project is set
+  const envSegment = allowedProject ? `${allowedProject}/${allowedEnv}` : allowedEnv;
+  const expected = `pulumi:environments:org:${allowedOrg}:env:${envSegment}`;
   if (sub !== expected) { /* reject 403 */ }
 } else {
   // Prefix match: any environment in the org is allowed
